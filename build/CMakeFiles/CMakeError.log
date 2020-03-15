@@ -1,0 +1,17 @@
+Detecting C [-std=c11] compiler features failed to compile with the following output:
+Change Dir: /home/foobar/git/autonomous-mobile-robot/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_6da01/fast"
+/usr/bin/make -f CMakeFiles/cmTC_6da01.dir/build.make CMakeFiles/cmTC_6da01.dir/build
+make[1]: Verzeichnis „/home/foobar/git/autonomous-mobile-robot/build/CMakeFiles/CMakeTmp“ wird betreten
+Building C object CMakeFiles/cmTC_6da01.dir/feature_tests.c.o
+/usr/bin/c99-gcc   -std=c11 -o CMakeFiles/cmTC_6da01.dir/feature_tests.c.o   -c /home/foobar/git/autonomous-mobile-robot/build/CMakeFiles/feature_tests.c
+c99-gcc called with non ISO C99 option -std=c11
+CMakeFiles/cmTC_6da01.dir/build.make:65: recipe for target 'CMakeFiles/cmTC_6da01.dir/feature_tests.c.o' failed
+make[1]: *** [CMakeFiles/cmTC_6da01.dir/feature_tests.c.o] Error 1
+make[1]: Verzeichnis „/home/foobar/git/autonomous-mobile-robot/build/CMakeFiles/CMakeTmp“ wird verlassen
+Makefile:126: recipe for target 'cmTC_6da01/fast' failed
+make: *** [cmTC_6da01/fast] Error 2
+
+
+

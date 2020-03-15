@@ -1,0 +1,3 @@
+/home/foobar/git/autonomous-mobile-robot/CMakeFiles/rebuild_cache.dir
+/home/foobar/git/autonomous-mobile-robot/CMakeFiles/DisplayImage.dir
+/home/foobar/git/autonomous-mobile-robot/CMakeFiles/edit_cache.dir
