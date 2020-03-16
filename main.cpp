@@ -11,30 +11,31 @@ int main(int, char**)
 {
     Mat frame;
     Mat hsv;
-    //Mat background;
-    //--- INITIALIZE VIDEOCAPTURE
+    Rect roi;
+    int offset_x = 20;
+    int offset_y = 20;
+
     VideoCapture cap;
-    // open the default camera using default API
-    // cap.open(0);
-    // OR advance usage: select any API backend
-    int deviceID = 2;             // 0 = open default camera
+    int deviceID = 0;             // 0 = open default camera
     int apiID = cv::CAP_ANY;      // 0 = autodetect default API
-    // open selected camera using selected API
     cap.open(deviceID + apiID);
     // check if we succeeded
     if (!cap.isOpened()) {
         cerr << "ERROR! Unable to open camera\n";
         return -1;
     }
-    cap.set(CAP_PROP_FRAME_WIDTH,360);
-    cap.set(CAP_PROP_FRAME_HEIGHT,240);
+    cap.set(CAP_PROP_FRAME_WIDTH,1000);
+    cap.set(CAP_PROP_FRAME_HEIGHT,1000);
+    cout << cap.get(CAP_PROP_FRAME_WIDTH) << endl;
+    cout << cap.get(CAP_PROP_FRAME_HEIGHT) << endl;
 
-    Mat background;
+    /*Mat background;
     for(int i=0;i<30;i++)
     {
     cap >> background;
-    }
-
+    }*/
+    Mat background(720,960, CV_8UC3, Scalar(0,255,0));
+  
     //Laterally invert the image / flip the image.
     //flip(background,background,1);
     //--- GRAB AND WRITE LOOP
@@ -49,29 +50,43 @@ int main(int, char**)
             cerr << "ERROR! blank frame grabbed\n";
             break;
         }
+
+        roi.x = offset_x;
+        roi.y = offset_y;
+        roi.width = frame.size().width -(offset_x*2);
+        roi.height = frame.size().height -(offset_y*2);
+
+        Mat crop = frame(roi);
+
         cvtColor(frame,hsv,COLOR_BGR2HSV);
         Mat mask1, mask2;
-        inRange(hsv, Scalar(0,120,70),Scalar(10,255,255),mask1);
-        inRange(hsv, Scalar(170,120,70),Scalar(180,255,255),mask2);
+        inRange(hsv, Scalar(0,180,70),Scalar(5,255,255),mask1);
+        inRange(hsv, Scalar(175,180,70),Scalar(180,255,255),mask2);
         mask1=mask1+mask2;
-
-        Mat kernel = Mat::ones(3,3, CV_32F);
+        //imshow("mask", mask1);
+        Mat kernel = Mat::ones(1,1, CV_32F);
         morphologyEx(mask1,mask1,cv::MORPH_OPEN,kernel);
+        //imshow("MORPH_OPEN", mask1);
         morphologyEx(mask1,mask1,cv::MORPH_DILATE,kernel);
-
+        //imshow("MORPH_DILATE", mask1);
         // creating an inverted mask to segment out the cloth from the frame
         bitwise_not(mask1,mask2);
         Mat res1, res2, final_output;
-
+        //imshow("bitwise_not", mask2);
         // Segmenting the cloth out of the frame using bitwise and with the inverted mask
-        bitwise_and(frame,frame,res1,mask2);
-
+        bitwise_and(frame,frame,res1,mask1);
+        res1=res1*1.5;
+        Mat kernel2 = Mat::ones(9,9, CV_32F);
+        imshow("bitwise_and", res1);
+        morphologyEx(res1,res1,cv::MORPH_DILATE,kernel2);
+        imshow("dilate", res1);
         // creating image showing static background frame pixels only for the masked region
         bitwise_and(background,background,res2,mask1);
 
         // Generating the final augmented output.
-        addWeighted(res1,1,res2,1,0,final_output);
+        addWeighted(res1,1,frame,1,0,final_output);
         imshow("magic", final_output);
+        //imshow("crop", crop);
 
         // show live and wait for a key with timeout long enough to show images
         //imshow("Live", frame);
