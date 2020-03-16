@@ -10,6 +10,7 @@ using namespace std;
 int main(int, char**)
 {
     Mat frame;
+    Mat still;
     Mat hsv;
     Rect roi;
     int offset_x = 20;
@@ -29,12 +30,14 @@ int main(int, char**)
     cout << cap.get(CAP_PROP_FRAME_WIDTH) << endl;
     cout << cap.get(CAP_PROP_FRAME_HEIGHT) << endl;
 
-    /*Mat background;
+
     for(int i=0;i<30;i++)
     {
-    cap >> background;
-    }*/
+    cap >> still;
+    }
     Mat background(720,960, CV_8UC3, Scalar(0,255,0));
+    int counter=10;
+    int countMotion=0;
   
     //Laterally invert the image / flip the image.
     //flip(background,background,1);
@@ -50,6 +53,13 @@ int main(int, char**)
             cerr << "ERROR! blank frame grabbed\n";
             break;
         }
+
+        counter--;
+        if (counter<=0) {
+            counter = 2;
+            cap >> still;
+        }
+        //cout << "counter=" << counter << endl;
 
         roi.x = offset_x;
         roi.y = offset_y;
@@ -77,16 +87,25 @@ int main(int, char**)
         bitwise_and(frame,frame,res1,mask1);
         res1=res1*1.5;
         Mat kernel2 = Mat::ones(9,9, CV_32F);
-        imshow("bitwise_and", res1);
+        //imshow("bitwise_and", res1);
         morphologyEx(res1,res1,cv::MORPH_DILATE,kernel2);
-        imshow("dilate", res1);
+        //imshow("dilate", res1);
         // creating image showing static background frame pixels only for the masked region
         bitwise_and(background,background,res2,mask1);
 
         // Generating the final augmented output.
         addWeighted(res1,1,frame,1,0,final_output);
-        imshow("magic", final_output);
+        //imshow("magic", final_output);
         //imshow("crop", crop);
+
+        Mat compare;
+        compare=still-frame;
+        if (sum(compare)[2]>1000000){
+            countMotion++;
+            cout << "motion detected "<< countMotion << endl;
+        }
+        //cout << "det="<< sum(compare)<< endl;
+        imshow("sub", compare);
 
         // show live and wait for a key with timeout long enough to show images
         //imshow("Live", frame);
